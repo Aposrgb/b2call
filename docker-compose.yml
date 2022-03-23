@@ -1,0 +1,51 @@
+version: '3.7'
+services:
+    postgres:
+        image: postgres
+        ports:
+            - 5460:5432
+        environment:
+            POSTGRES_PASSWORD: root
+            POSTGRES_USER: root
+            POSTGRES_DB: b2call_db
+        networks:
+            - b2call
+
+    php-fpm:
+        container_name: php-fpm-con
+        build:
+            context: ./build/php-fpm
+            dockerfile: Dockerfile
+            args:
+                - XDEBUG_MODE
+                - XDEBUG_CLIENT_HOST
+        environment:
+            - SYMFONY_ENV
+            - PHP_IDE_CONFIG
+        ports:
+            - 9612:9000
+        volumes:
+            - ./symfony:/var/www/symfony:cached
+            - ./logs/symfony:/var/www/symfony/var/log:cached
+            - ./b2call/:/var/www/b2call/:delegated
+        depends_on:
+            - postgres
+        networks:
+            - b2call
+
+    nginx:
+        image: nginx:latest
+        container_name: nginx-con
+        ports:
+            - 8560:80
+        depends_on:
+            - php-fpm
+        networks:
+            - b2call
+        volumes:
+            - ./build/nginx/local:/etc/nginx/conf.d/
+            - ./build/nginx/client_max_body_size.conf:/etc/nginx/conf.d/client_max_body_size.conf
+            - ./b2call/public:/var/www/b2call/public:rw,cached
+
+networks:
+    b2call:
