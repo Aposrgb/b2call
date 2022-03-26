@@ -40,7 +40,7 @@ class ClientApiController extends AbstractApiController
      */
     public function getClient(Client $client): JsonResponse
     {
-        return $this->json(['data' => $client], context: ["groups" => ["show"]]);
+        return $this->json($client, context: ["groups" => ["show"], "normalize" => "normalizeClient"]);
     }
 
     #[Route('', name: 'create_client', methods: ['POST'])]
