@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Serializer\Normalizer;
 
 use App\Entity\Client;
 use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
@@ -21,8 +21,7 @@ class ClientNormalizer implements ContextAwareNormalizerInterface
         return null;
     }
 
-    public
-    function normalizeClient(Client $object, string $format = null, array $context = [])
+    public function normalizeClient(Client $object, string $format = null, array $context = [])
     {
         $application = $object->getApplications()->last();
         return [
@@ -30,23 +29,23 @@ class ClientNormalizer implements ContextAwareNormalizerInterface
                 "infoForLead" => [
                     [
                         "label" => "Услуга",
-                        "name" => $application->getService() ?? null
+                        "name" => $application?$application->getService():null
                     ],
                     [
                         "label" => "Источник",
-                        "name" => $application->getSource() ?? null
+                        "name" => $application?$application->getSource():null
                     ],
                     [
                         "label" => "Необходимое пространство",
-                        "name" => $application->getSpace() ?? null
+                        "name" => $application?$application->getSpace():null
                     ],
                     [
                         "label" => "Назначение помещения",
-                        "name" => $application->getRoom() ?? null
+                        "name" => $application?$application->getRoom():null
                     ],
                     [
                         "label" => "Тип помещения",
-                        "name" => $application->getTypeRoom() ?? null
+                        "name" => $application?$application->getTypeRoom():null
                     ]
                 ],
                 "infoForClient" => [

@@ -2,15 +2,21 @@
 
 namespace App\Entity;
 
+use App\Helper\Status\ClientStatus;
+use App\Helper\Status\StatusTrait;
 use App\Repository\ClientRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ClientRepository::class)]
-class Client
+class Client implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    use StatusTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -41,9 +47,20 @@ class Client
     #[Groups(["show"])]
     private $applications;
 
+    #[ORM\Column(type: 'json')]
+    private $roles = [];
+
+    #[ORM\Column(type: 'string')]
+    private $password;
+
+    #[ORM\OneToMany(mappedBy: 'client', targetEntity: Device::class, cascade: ["persist", "remove"])]
+    private $devices;
+
     public function __construct()
     {
+        $this->status = ClientStatus::ACTIVE;
         $this->applications = new ArrayCollection();
+        $this->devices = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -80,7 +97,7 @@ class Client
         return $this->patronymic;
     }
 
-    public function setPatronymic(string $patronymic): self
+    public function setPatronymic($patronymic): self
     {
         $this->patronymic = $patronymic;
 
@@ -134,6 +151,89 @@ class Client
             // set the owning side to null (unless already changed)
             if ($application->getClient() === $this) {
                 $application->setClient(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * A visual identifier that represents this user.
+     *
+     * @see UserInterface
+     */
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->mail;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
+
+    /**
+     * @see PasswordAuthenticatedUserInterface
+     */
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): self
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function eraseCredentials()
+    {
+        // If you store any temporary, sensitive data on the user, clear it here
+        // $this->plainPassword = null;
+    }
+
+    /**
+     * @return Collection<int, Device>
+     */
+    public function getDevices(): Collection
+    {
+        return $this->devices;
+    }
+
+    public function addDevice(Device $device): self
+    {
+        if (!$this->devices->contains($device)) {
+            $this->devices[] = $device;
+            $device->setClient($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDevice(Device $device): self
+    {
+        if ($this->devices->removeElement($device)) {
+            // set the owning side to null (unless already changed)
+            if ($device->getClient() === $this) {
+                $device->setClient(null);
             }
         }
 

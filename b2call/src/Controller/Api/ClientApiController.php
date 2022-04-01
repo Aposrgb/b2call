@@ -27,7 +27,7 @@ class ClientApiController extends AbstractApiController
      *     description="Клиент",
      *     @OA\JsonContent(
      *          @OA\Property(property="data", type="object",
-     *              ref=@Model(type=Client::class)
+     *              ref=@Model(type=Client::class, groups={"show"})
      *          )
      *     )
      * )
@@ -36,7 +36,6 @@ class ClientApiController extends AbstractApiController
      *     description="Application Not Found",
      *     @Model(type=ApiException::class, groups={"show"})
      * )
-     *
      */
     public function getClient(Client $client): JsonResponse
     {
