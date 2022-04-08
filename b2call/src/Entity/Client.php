@@ -128,7 +128,7 @@ class Client implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, Application>
+     * @return Collection
      */
     public function getApplications(): Collection
     {

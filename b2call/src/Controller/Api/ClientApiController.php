@@ -23,15 +23,6 @@ class ClientApiController extends AbstractApiController
      * Получение клиента
      *
      * @OA\Response(
-     *     response="200",
-     *     description="Клиент",
-     *     @OA\JsonContent(
-     *          @OA\Property(property="data", type="object",
-     *              ref=@Model(type=Client::class, groups={"show"})
-     *          )
-     *     )
-     * )
-     * @OA\Response(
      *     response="404",
      *     description="Application Not Found",
      *     @Model(type=ApiException::class, groups={"show"})

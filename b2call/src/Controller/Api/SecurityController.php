@@ -34,10 +34,10 @@ class SecurityController extends AbstractApiController
      * )
      *
      */
-    public function login(Request $request, SecurityService $securityService)
+    public function login(Request $request, SecurityService $service)
     {
         $body = $this->serializer->deserialize($request->getContent(), Client::class, "json");
-        $token = $securityService->login($body);
+        $token = $service->login($body);
         return $this->json(["data" => ["token" => $token]]);
     }
 }
